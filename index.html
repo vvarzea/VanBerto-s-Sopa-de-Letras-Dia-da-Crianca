@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="pt-PT" xml:lang="pt-PT" translate="no">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#1a0a2e"/>
+<meta http-equiv="Content-Language" content="pt-PT"/>
+<meta name="language" content="pt-PT"/>
+<title>VanBerto's — Sopa de Letras · Dia da Criança</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Baloo+2:wght@700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ═══ RESET & BASE ═══ */
+*{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{
+  font-family:'Nunito','Baloo 2',sans-serif;
+  background:#1a0a2e;
+  min-height:100%;
+  overflow-x:hidden;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+@keyframes vbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+#prof-tag{position:fixed;bottom:.6rem;right:.75rem;z-index:600;font-family:'Nunito',sans-serif;font-size:clamp(.65rem,1.8vw,.78rem);color:#ffb890;font-weight:800;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.8);pointer-events:none;}
+
+/* ═══ SCREENS ═══ */
+.screen{
+  display:none;
+  min-height:100vh;
+  min-height:100dvh;
+  padding:1.5rem 1rem 4rem;
+  padding-bottom:max(4rem, calc(4rem + env(safe-area-inset-bottom)));
+  align-items:center;justify-content:center;flex-direction:column;
+}
+.screen.active{display:flex;}
+
+/* overlay bg animation */
+.screen{
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%,rgba(255,107,53,.16) 0%,rgba(26,10,46,0) 55%,rgba(10,4,20,.94) 100%),
+    rgba(10,4,20,.9);
+  animation:festFlicker 6s ease-in-out infinite;
+}
+@keyframes festFlicker{
+  0%,100%{background:radial-gradient(ellipse 70% 55% at 50% 45%,rgba(255,107,53,.16) 0%,rgba(26,10,46,0) 55%,rgba(10,4,20,.94) 100%),rgba(10,4,20,.9);}
+  33%{background:radial-gradient(ellipse 68% 53% at 51% 43%,rgba(255,200,50,.18) 0%,rgba(26,10,46,0) 55%,rgba(10,4,20,.92) 100%),rgba(10,4,20,.9);}
+  66%{background:radial-gradient(ellipse 72% 58% at 49% 47%,rgba(160,80,255,.14) 0%,rgba(26,10,46,0) 55%,rgba(10,4,20,.92) 100%),rgba(10,4,20,.9);}
+}
+
+/* ═══ CARD (modal) ═══ */
+.modal-card{
+  width:min(560px,96vw);
+  background:linear-gradient(145deg,#2a0a4e 0%,#1a0835 60%,#0f0525 100%);
+  border-radius:16px;
+  box-shadow:0 0 0 3px #ff6b35,0 0 0 5px #ffd700,8px 8px 0 #0a0520,0 0 50px rgba(255,107,53,.22),inset 0 1px 0 rgba(255,200,100,.1);
+  padding:clamp(16px,3vw,26px) clamp(14px,3vw,24px) clamp(14px,2.5vw,20px);
+  position:relative;
+  animation:cardPop .25s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes cardPop{from{transform:scale(.88) rotate(-1.5deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.modal-card::before{content:'🌟';position:absolute;top:8px;left:10px;font-size:18px;opacity:.65;pointer-events:none}
+.modal-card::after{content:'🎈';position:absolute;bottom:8px;right:10px;font-size:18px;opacity:.65;pointer-events:none}
+
+/* robot + bubble row inside modal */
+.modal-robot-row{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  margin-bottom:16px;
+}
+.modal-robot{
+  height:clamp(72px,14vw,96px);width:auto;flex-shrink:0;
+  filter:drop-shadow(0 0 14px rgba(56,189,248,.8));
+  animation:vbFloat 3s ease-in-out infinite;
+}
+.modal-robot-arm{transform-origin:65px 37px;animation:waveArm 1.6s ease-in-out infinite;}
+@keyframes waveArm{0%,100%{transform:rotate(0)}25%,75%{transform:rotate(-20deg)}}
+.modal-eyelid{transform-origin:40px 23px;animation:eyeBlink 5s ease-in-out infinite;}
+@keyframes eyeBlink{0%,88%,100%{transform:scaleY(0)}93%{transform:scaleY(1)}}
+
+/* bubble pointing LEFT (toward the robot on its left) */
+.modal-bubble-box{
+  background:linear-gradient(135deg,#dcebff,#fff);
+  border:3px solid #0f172a;outline:2px solid #1e293b;outline-offset:-4px;
+  border-radius:20px;
+  padding:10px 14px 10px 18px;
+  box-shadow:4px 4px 0 #0f172a;
+  font-family:"Comic Sans MS","Trebuchet MS",sans-serif;
+  font-size:clamp(.78rem,2.3vw,.95rem);
+  font-weight:bold;color:#0f172a;
+  max-width:210px;line-height:1.45;text-align:center;
+  position:relative;
+  margin-left:10px;
+}
+/* triangle pointing left */
+.modal-bubble-box::after{
+  content:"";position:absolute;
+  left:-16px;top:50%;transform:translateY(-50%);
+  border-top:10px solid transparent;border-bottom:10px solid transparent;
+  border-right:16px solid #0f172a;
+}
+.modal-bubble-box::before{
+  content:"";position:absolute;
+  left:-11px;top:50%;transform:translateY(-50%);
+  border-top:8px solid transparent;border-bottom:8px solid transparent;
+  border-right:12px solid #dcebff;
+  z-index:1;
+}
+
+.modal-title{
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.2rem,4vw,1.6rem);
+  color:#ffd700;text-align:center;
+  text-shadow:0 2px 10px rgba(255,107,53,.45);
+  margin-bottom:clamp(6px,1.5vw,12px);
+  border-bottom:2px solid rgba(255,107,53,.4);
+  padding-bottom:8px;
+}
+.modal-sub{
+  color:#ffb8a0;font-size:clamp(.78rem,2vw,.9rem);
+  text-align:center;margin-bottom:clamp(8px,2vw,14px);
+  font-weight:700;line-height:1.4;
+}
+
+/* name input */
+.name-row{display:flex;align-items:center;gap:10px;margin:0 0 10px;flex-wrap:wrap;justify-content:center}
+.name-row label{font-family:'Baloo 2',sans-serif;font-weight:900;font-size:13px;color:#ffd700;white-space:nowrap}
+.name-row input{
+  flex:1;min-width:150px;
+  border:2px solid #ff6b35;border-radius:8px;padding:7px 12px;
+  font-size:14px;font-family:'Nunito',sans-serif;font-weight:800;
+  background:#1a0835;color:#ffd700;outline:none;
+  box-shadow:2px 2px 0 #ff6b35;
+  transition:box-shadow .15s;
+}
+.name-row input:focus{box-shadow:2px 2px 0 #ffd700,0 0 0 3px rgba(255,107,53,.3)}
+.name-row input::placeholder{color:#ff9060;opacity:.7}
+
+/* level buttons */
+.level-bar{display:flex;gap:8px;justify-content:center;margin:0 0 5px;flex-wrap:wrap}
+.lvl-btn{
+  font-family:'Baloo 2',sans-serif;font-size:.82rem;font-weight:900;
+  padding:.34rem .85rem;border-radius:20px;border:2px solid transparent;
+  cursor:pointer;transition:all .18s;background:rgba(255,107,53,.06);
+}
+.lvl-btn.easy{border-color:#4ecb71;color:#4ecb71}
+.lvl-btn.easy.active{background:#4ecb71;color:#0f0525;box-shadow:0 0 12px rgba(78,203,113,.45)}
+.lvl-btn.medium{border-color:#ff9f43;color:#ff9f43}
+.lvl-btn.medium.active{background:#ff9f43;color:#0f0525;box-shadow:0 0 12px rgba(255,159,67,.45)}
+.lvl-btn.hard{border-color:#ff6b35;color:#ff6b35}
+.lvl-btn.hard.active{background:#ff6b35;color:#fff8e0;box-shadow:0 0 12px rgba(255,107,53,.5)}
+.lvl-desc{font-size:11px;color:#ffb890;text-align:center;margin-bottom:10px;font-style:italic;min-height:14px}
+
+/* buttons */
+.btn{
+  font-family:'Baloo 2',sans-serif;
+  border:2.5px solid #ff6b35;
+  background:linear-gradient(180deg,#3a0868,#25044a);
+  color:#ffd700;border-radius:10px;
+  padding:clamp(7px,1.5vw,10px) clamp(12px,2.5vw,18px);
+  font-weight:900;font-size:clamp(.78rem,1.8vw,.88rem);
+  cursor:pointer;
+  box-shadow:4px 4px 0 #0a0520,inset 0 1px 0 rgba(255,180,80,.1);
+  transition:transform .08s,box-shadow .08s,background .12s;
+  letter-spacing:.2px;
+}
+.btn:hover{background:linear-gradient(180deg,#4e0e80,#32065e);transform:translate(-1px,-1px);box-shadow:5px 5px 0 #0a0520}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0a0520}
+.btn.primary{
+  background:linear-gradient(180deg,#ff6b35,#e04010);
+  color:#fff8e0;border-color:#ffd700;
+  box-shadow:4px 4px 0 #0a0520,inset 0 1px 0 rgba(255,220,100,.2);
+  text-shadow:0 1px 3px rgba(0,0,0,.35);
+}
+.btn.primary:hover{background:linear-gradient(180deg,#ff8050,#e85020)}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.tiny{margin-top:10px;font-size:11px;color:#ffb890;opacity:.8;font-style:italic;text-align:center}
+
+/* ═══ GAME SCREEN ═══ */
+#gameScreen{
+  padding-top:.4rem;
+  padding-bottom:max(3rem, calc(3rem + env(safe-area-inset-bottom)));
+  padding-left:.5rem;
+  padding-right:.5rem;
+  background:#1a0a2e;
+  animation:none;
+  align-items:stretch;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.game-header{
+  width:100%;max-width:1100px;
+  margin:0 auto .2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:.3rem;
+  padding:0 .1rem;
+}
+.header-actions{
+  display:flex;align-items:center;gap:5px;flex-wrap:wrap;
+}
+.btn-sm{
+  padding:4px 10px !important;
+  font-size:.72rem !important;
+}
+.game-player{
+  font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;
+  color:#ffb890;display:flex;align-items:center;gap:.3rem;
+}
+.level-bar-game{display:flex;gap:6px;justify-content:center;flex:1;}
+
+/* progress */
+.progress-wrap{
+  width:100%;max-width:1100px;margin:0 auto .3rem;
+  background:rgba(255,107,53,.12);border:1px solid rgba(255,215,0,.18);
+  border-radius:10px;overflow:hidden;height:7px;
+}
+.progress-bar{height:100%;background:linear-gradient(90deg,#ff6b35,#ffd700);border-radius:10px;transition:width .4s}
+
+/* ── LAYOUT: grid left, sidebar right on desktop ── */
+.game-layout{
+  width:100%;max-width:1100px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:row;
+  gap:clamp(6px,1.2vw,16px);
+  align-items:flex-start;
+  flex:1;
+}
+
+/* GRID */
+#grid-wrap{
+  flex:0 0 auto;
+  min-width:0;
+  display:flex;
+  justify-content:center;
+  overflow:hidden;
+}
+#grid{
+  display:grid;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:none;
+}
+.cell{
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2',sans-serif;font-weight:900;
+  border-radius:5px;
+  background:rgba(255,107,53,.08);
+  color:#ffd700;
+  border:1.5px solid rgba(255,107,53,.22);
+  transition:background .08s,color .08s;
+  touch-action:none;
+  -webkit-touch-callout:none;
+  aspect-ratio:1;
+  /* font-size set by JS */
+}
+.cell.selecting{background:rgba(255,215,0,.32);color:#fff;border-color:#ffd700}
+
+/* found colours */
+.found-0{background:#ff6b9d!important;color:#fff!important;border-color:#ff6b9d!important}
+.found-1{background:#36b5f5!important;color:#fff!important;border-color:#36b5f5!important}
+.found-2{background:#4ecb71!important;color:#0f0525!important;border-color:#4ecb71!important}
+.found-3{background:#ff9f43!important;color:#0f0525!important;border-color:#ff9f43!important}
+.found-4{background:#a29bfe!important;color:#fff!important;border-color:#a29bfe!important}
+.found-5{background:#fd79a8!important;color:#fff!important;border-color:#fd79a8!important}
+.found-6{background:#00cec9!important;color:#fff!important;border-color:#00cec9!important}
+.found-7{background:#ffd700!important;color:#0f0525!important;border-color:#ffd700!important}
+.found-8{background:#ff6b35!important;color:#fff!important;border-color:#ff6b35!important}
+.found-9{background:#6c5ce7!important;color:#fff!important;border-color:#6c5ce7!important}
+.found-10{background:#00b894!important;color:#fff!important;border-color:#00b894!important}
+.found-11{background:#e17055!important;color:#fff!important;border-color:#e17055!important}
+.found-12{background:#b8860b!important;color:#fff!important;border-color:#b8860b!important}
+
+/* SIDEBAR → vertical on desktop, horizontal on mobile */
+.sidebar{
+  flex:1;min-width:160px;max-width:240px;
+  display:flex;flex-direction:column;flex-wrap:nowrap;
+  align-items:center;
+  gap:10px;
+  padding:.5rem .5rem;
+  background:rgba(255,107,53,.04);
+  border:1px solid rgba(255,107,53,.18);
+  border-radius:10px;
+  position:sticky;top:.5rem;
+}
+/* words zone fills remaining space and wraps */
+.words-zone{
+  display:flex;flex-direction:column;flex-wrap:nowrap;
+  gap:5px;align-items:stretch;width:100%;
+}
+.words-title{
+  font-family:'Baloo 2',sans-serif;font-size:.72rem;font-weight:900;
+  color:#ff6b35;letter-spacing:.3px;
+  display:flex;align-items:center;gap:4px;
+  white-space:nowrap;margin-bottom:2px;
+}
+.word-item{
+  display:flex;align-items:center;gap:6px;
+  font-family:'Baloo 2',sans-serif;
+  font-size:clamp(.68rem,1vw,.82rem);
+  font-weight:800;
+  padding:4px 10px;border-radius:6px;
+  color:#ffd700;
+  border:1px solid rgba(255,107,53,.25);
+  background:rgba(255,107,53,.07);
+  white-space:nowrap;
+}
+.word-item.done{text-decoration:line-through;opacity:.3}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* mobile: switch sidebar back to horizontal row */
+@media(max-width:700px){
+  .game-layout{
+    flex-direction:column;
+    align-items:center;
+    max-width:100%;
+  }
+  #grid-wrap{width:100%;}
+  .sidebar{
+    width:100%;max-width:100%;min-width:0;
+    flex-direction:row;flex-wrap:nowrap;
+    position:static;
+    padding:.35rem .4rem;
+    gap:8px;
+  }
+  .words-zone{
+    flex-direction:row;flex-wrap:wrap;
+    flex:1;min-width:0;
+  }
+  .word-item{font-size:clamp(.58rem,2.5vw,.76rem);}
+}
+
+/* msg + score — now above grid inside layout */
+#msg{
+  width:100%;max-width:1100px;margin:.1rem auto 0;
+  text-align:center;
+  font-family:'Baloo 2',sans-serif;font-size:.85rem;font-weight:900;
+  color:#ff6b35;min-height:1.1rem;
+  text-shadow:0 1px 6px rgba(255,107,53,.35);
+}
+#score{
+  width:100%;max-width:1100px;margin:0 auto .1rem;
+  text-align:center;font-size:.72rem;color:#ffb890;font-style:italic;
+}
+.bottom-bar{display:none;}
+
+/* ═══ ROBOT ═══ */
+.robot-wrap{
+  display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  flex-shrink:0;
+}
+.robot-wrap.visible{display:flex;}
+.robot-name{
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(.65rem,1.6vw,.8rem);
+  color:#ffd700;
+  text-shadow:0 1px 6px rgba(0,0,0,.8),0 0 10px rgba(255,107,53,.4);
+  text-align:center;
+  margin-top:1px;
+  line-height:1.2;
+  letter-spacing:.02em;
+}
+/* Bubble above robot — arrow points DOWN */
+.bubble{
+  --bc:#dcebff;
+  background:linear-gradient(135deg,var(--bc),#fff);
+  border:3px solid #0f172a;outline:2px solid #1e293b;outline-offset:-4px;
+  border-radius:16px;padding:6px 10px 5px;
+  box-shadow:3px 3px 0 #0f172a;
+  font-family:"Comic Sans MS","Trebuchet MS",sans-serif;
+  font-size:clamp(.6rem,1.5vw,.78rem);font-weight:bold;color:#0f172a;
+  max-width:180px;min-width:80px;text-align:center;
+  pointer-events:none;position:relative;
+  opacity:0;transform:translateY(-6px) scale(.88);
+  transition:opacity .38s,transform .38s cubic-bezier(.34,1.56,.64,1);
+  margin-bottom:4px;
+}
+/* arrow pointing down toward robot head */
+.bubble::after{
+  content:"";position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
+  border-left:10px solid transparent;border-right:10px solid transparent;
+  border-top:14px solid #0f172a;
+}
+.bubble::before{
+  content:"";position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
+  border-left:8px solid transparent;border-right:8px solid transparent;
+  border-top:11px solid var(--bc);z-index:1;
+}
+.bubble.show{opacity:1;transform:translateY(0) scale(1);}
+#vb-robot{
+  width:clamp(44px,6vw,64px);
+  cursor:pointer;flex-shrink:0;
+  animation:vbFloat 3s ease-in-out infinite;
+  filter:drop-shadow(0 0 10px #7dd3fc);
+}
+#vb-robot:hover{filter:drop-shadow(0 0 22px #38bdf8);}
+#vb-robot.bounce{animation:robotPop .65s cubic-bezier(.34,1.56,.64,1),vbFloat 3s ease-in-out .65s infinite;}
+@keyframes robotPop{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-18px) rotate(-6deg)}70%{transform:translateY(-8px) rotate(5deg)}}
+.vb-arm{transform-origin:65px 37px;animation:waveArm 1.5s ease-in-out infinite;}
+.vb-eyelid{transform-origin:40px 23px;animation:eyeBlink 5s ease-in-out infinite;}
+
+/* ═══ WIN OVERLAY ═══ */
+#winOverlay{
+  position:fixed;inset:0;z-index:700;
+  display:none;
+  align-items:center;justify-content:center;
+  background:rgba(8,3,20,.88);
+  padding:1rem;overflow-y:auto;
+}
+#winOverlay.active{display:flex;}
+.win-card{
+  width:min(480px,94vw);
+  background:linear-gradient(135deg,#0f0530,#1e0840);
+  border-radius:16px;
+  box-shadow:0 0 0 3px #ff6b35,0 0 0 5px #ffd700,8px 8px 0 #0a0520,0 0 60px rgba(255,107,53,.25);
+  padding:clamp(16px,3vw,28px) clamp(14px,3vw,24px);
+  text-align:center;
+  animation:cardPop .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+.win-trophy{font-size:clamp(44px,10vw,62px);animation:bounce .8s ease-in-out infinite alternate;display:block;margin-bottom:6px;}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+.win-title{
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.4rem,4.5vw,2rem);
+  color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,.5);
+  margin-bottom:4px;
+}
+.win-name{font-size:14px;color:#ffb890;font-style:italic;margin-bottom:12px;}
+.win-stats{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.win-stat{
+  font-size:13px;color:#ffe0d0;
+  background:rgba(255,107,53,.14);
+  border:1px solid rgba(255,215,0,.18);
+  border-radius:6px;padding:7px 12px;
+  font-weight:800;
+}
+.win-medal{
+  font-size:15px;font-weight:900;color:#ffd700;
+  background:rgba(255,215,0,.12);
+  border:1px solid rgba(255,215,0,.18);
+  border-radius:6px;padding:8px 12px;
+}
+
+/* ═══ CONFETTI ═══ */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:5000;overflow:hidden}
+#confetti.hidden{display:none!important}
+#confetti span{position:absolute;top:-10vh;animation:confettiFall linear forwards;will-change:transform}
+@keyframes confettiFall{0%{transform:translateY(-10vh) rotate(0);opacity:1}100%{transform:translateY(120vh) rotate(540deg);opacity:.9}}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:700px){
+  .sidebar{gap:3px;padding:.25rem .15rem;}
+  .word-item{padding:2px 7px;font-size:clamp(.58rem,2.5vw,.72rem);}
+  .robot-wrap{gap:5px;margin-top:3px;padding-top:4px;}
+  .bubble{max-width:160px;min-width:80px;font-size:.65rem;padding:5px 8px 4px;}
+  .robot-name{font-size:.65rem;}
+  .game-header{gap:.2rem;}
+  .level-bar-game .lvl-btn{padding:.25rem .5rem;font-size:.7rem;}
+  .btn{padding:5px 9px;font-size:.74rem;}
+  #gameScreen{padding-bottom:max(3.5rem, calc(3.5rem + env(safe-area-inset-bottom)));}
+}
+@media(max-width:320px){
+  .bubble{display:none;}
+  .bottom-bar{padding-right:0;}
+  .level-bar .lvl-btn,.level-bar-game .lvl-btn{padding:.22rem .4rem;font-size:.66rem;}
+}
+/* Landscape phone */
+@media(max-height:500px) and (orientation:landscape){
+  #gameScreen{padding-top:.3rem;padding-bottom:2.5rem;}
+  .game-layout{flex-direction:row;max-width:100%;}
+  .sidebar{width:clamp(160px,28vw,220px);flex-direction:column;flex-wrap:nowrap;align-items:flex-start;justify-content:flex-start;}
+  .robot-wrap{flex-direction:column;border-top:1px solid rgba(255,107,53,.2);}
+  .bottom-bar{margin-top:.2rem;}
+}
+</style>
+</head>
+<body lang="pt-PT">
+
+<!-- ═══ HEADER ═══ -->
+
+
+
+<!-- ═══ ECRÃ INICIAL ═══ -->
+<div id="startScreen" class="screen active">
+  <div class="modal-card">
+    <div class="modal-robot-row">
+      <svg class="modal-robot" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e5f2ff"/><stop offset="100%" stop-color="#bfdbfe"/></linearGradient>
+          <linearGradient id="svg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
+        </defs>
+        <circle cx="40" cy="40" r="34" fill="rgba(147,197,253,0.28)"/>
+        <rect x="18" y="30" width="44" height="32" rx="14" fill="url(#sbg)"/>
+        <circle cx="40" cy="46" r="7" fill="#9ca3af"/>
+        <rect x="22" y="10" width="36" height="26" rx="13" fill="url(#sbg)"/>
+        <rect x="26" y="15" width="28" height="16" rx="8" fill="url(#svg2)"/>
+        <rect class="modal-eyelid" x="26" y="15" width="28" height="16" rx="8" fill="#e5f2ff" opacity="0.9"/>
+        <circle cx="33" cy="23" r="2.5" fill="#0f172a"/><circle cx="47" cy="23" r="2.5" fill="#0f172a"/>
+        <circle cx="34.2" cy="21.5" r="1" fill="white" opacity="0.8"/><circle cx="48.2" cy="21.5" r="1" fill="white" opacity="0.8"/>
+        <line x1="40" y1="10" x2="40" y2="4" stroke="#38bdf8" stroke-width="2"/><circle cx="40" cy="3" r="2.5" fill="#38bdf8"/>
+        <rect x="12" y="34" width="6" height="20" rx="3" fill="#e5e7eb"/>
+        <rect class="modal-robot-arm" x="62" y="34" width="6" height="20" rx="3" fill="#e5e7eb"/>
+        <rect x="22" y="58" width="12" height="8" rx="3" fill="#1f2937"/><rect x="46" y="58" width="12" height="8" rx="3" fill="#1f2937"/>
+      </svg>
+      <div class="modal-bubble-box">Olá! Encontra as palavras escondidas! 🔍🎈</div>
+    </div>
+    <div class="modal-title">🎈 Sopa de Letras<br>Dia da Criança</div>
+    <div class="name-row">
+      <label for="playerName">O teu nome:</label>
+      <input type="text" id="playerName" maxlength="22" placeholder="Escreve o teu nome…" autocomplete="off" lang="pt-PT" spellcheck="true" inputmode="text"/>
+    </div>
+    <div class="level-bar">
+      <button class="lvl-btn easy active" data-level="easy">⭐ Fácil</button>
+      <button class="lvl-btn medium" data-level="medium">⭐⭐ Médio</button>
+      <button class="lvl-btn hard" data-level="hard">⭐⭐⭐ Difícil</button>
+    </div>
+    <p class="lvl-desc" id="startLvlDesc">Grelha 10×10 · horizontal e vertical · 7 palavras</p>
+    <div class="row">
+      <button id="btnStart" class="btn primary">▶ Começar a jogar!</button>
+    </div>
+    <p class="tiny">PC: clica e arrasta · Tablet/telemóvel: toca e arrasta</p>
+  </div>
+</div>
+
+<!-- ═══ ECRÃ DE JOGO ═══ -->
+<div id="gameScreen" class="screen">
+  <div class="game-header">
+    <div class="level-bar level-bar-game">
+      <button class="lvl-btn easy" data-level="easy">⭐ Fácil</button>
+      <button class="lvl-btn medium" data-level="medium">⭐⭐ Médio</button>
+      <button class="lvl-btn hard" data-level="hard">⭐⭐⭐ Difícil</button>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-sm" id="btn-hint">💡 Dica (<span id="hints-left">3</span>)</button>
+      <button class="btn btn-sm primary" id="btn-restart">↺ Novo Jogo</button>
+      <button class="btn btn-sm" id="btn-menu">🏠 Menu</button>
+    </div>
+  </div>
+  <p class="lvl-desc" id="gameLvlDesc" style="width:100%;max-width:1100px;margin:0 auto .15rem;"></p>
+  <div class="progress-wrap"><div class="progress-bar" id="pbar" style="width:0%"></div></div>
+  <div id="msg"></div>
+  <div id="score"></div>
+  <div class="game-layout" id="game-layout">
+    <div id="grid-wrap"><div id="grid"></div></div>
+    <div class="sidebar">
+      <div class="words-zone">
+        <div class="words-title">📋 Palavras:</div>
+        <div id="word-list" style="display:flex;flex-direction:row;flex-wrap:wrap;gap:4px;align-items:center;"></div>
+      </div>
+      <div class="robot-wrap" id="robot-wrap-inline">
+        <div class="bubble" id="bubble" role="status" aria-live="polite">Olá! 😊</div>
+        <svg id="vb-robot" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" role="button" tabindex="0" aria-label="VanBerto — clica para falar">
+          <defs>
+            <linearGradient id="rbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e5f2ff"/><stop offset="100%" stop-color="#bfdbfe"/></linearGradient>
+            <linearGradient id="rvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
+          </defs>
+          <circle cx="40" cy="40" r="34" fill="rgba(147,197,253,0.35)"/>
+          <rect x="18" y="30" width="44" height="32" rx="14" fill="url(#rbg)"/>
+          <circle cx="40" cy="46" r="7" fill="#9ca3af"/>
+          <rect x="22" y="10" width="36" height="26" rx="13" fill="url(#rbg)"/>
+          <rect x="26" y="15" width="28" height="16" rx="8" fill="url(#rvg)"/>
+          <rect class="vb-eyelid" x="26" y="15" width="28" height="16" rx="8" fill="#e5f2ff" opacity="0.9"/>
+          <circle cx="33" cy="23" r="2.5" fill="#0f172a"/><circle cx="47" cy="23" r="2.5" fill="#0f172a"/>
+          <circle cx="34.2" cy="21.5" r="1" fill="white" opacity="0.8"/><circle cx="48.2" cy="21.5" r="1" fill="white" opacity="0.8"/>
+          <line x1="40" y1="10" x2="40" y2="4" stroke="#38bdf8" stroke-width="2"/><circle cx="40" cy="3" r="2.5" fill="#38bdf8"/>
+          <rect x="12" y="34" width="6" height="20" rx="3" fill="#e5e7eb"/>
+          <rect class="vb-arm" x="62" y="34" width="6" height="20" rx="3" fill="#e5e7eb"/>
+          <rect x="22" y="58" width="12" height="8" rx="3" fill="#1f2937"/><rect x="46" y="58" width="12" height="8" rx="3" fill="#1f2937"/>
+        </svg>
+        <div class="robot-name" id="robot-player-name">👤 Herói</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VITÓRIA ═══ -->
+<div id="winOverlay">
+  <div class="win-card">
+    <span class="win-trophy">🏆</span>
+    <div class="win-title">Missão Concluída!</div>
+    <p class="win-name">Parabéns, <strong id="winName" style="color:#ffd700;font-style:normal">Herói</strong>!</p>
+    <div class="win-stats">
+      <div class="win-stat">⭐ Palavras encontradas: <strong id="winFound">0</strong></div>
+      <div class="win-stat">🎮 Nível: <strong id="winLevel">—</strong></div>
+      <div class="win-medal" id="winMedal">🥇 Excelente!</div>
+    </div>
+    <div class="row">
+      <button id="btnWinRestart" class="btn primary">🔄 Jogar de novo</button>
+      <button id="btnWinMenu" class="btn">🏠 Menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONFETTI ═══ -->
+<div id="prof-tag">✦ Professora Vanda Várzea ✦</div>
+
+<div id="confetti" class="hidden" aria-hidden="true"></div>
+
+<script>
+'use strict';
+
+/* ── DATA ── */
+const LEVELS={
+  easy:{
+    size:10,
+    words:['BOLA','CORRER','BRINCAR','BONECA','PARQUE','AMIGOS','ALEGRIA'],
+    dirs:[[0,1],[1,0],[0,-1],[-1,0]],
+    label:'Grelha 10×10 · horizontal e vertical · 7 palavras',
+    hints:3,
+    medals:['🥇 Excelente!','🥈 Muito bem!','🥉 Continue a tentar!']
+  },
+  medium:{
+    size:13,
+    words:['BRINCAR','ALEGRIA','RECREIO','SORRISO','BONECA','BOLA','PARQUE','AMIGOS','SONHO','FANTASIA'],
+    dirs:[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0]],
+    label:'Grelha 13×13 · diagonais incluídas · 10 palavras',
+    hints:3,
+    medals:['🥇 Excelente!','🥈 Muito bem!','🥉 Continue a tentar!']
+  },
+  hard:{
+    size:16,
+    words:['BRINCAR','ALEGRIA','RECREIO','SORRISO','BONECA','BOLA','PARQUE','AMIGOS','SONHO','FANTASIA','TAMBOR','AVENTURA','DESCOBERTA'],
+    dirs:[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]],
+    label:'Grelha 16×16 · todas as direções + invertidas · 13 palavras',
+    hints:3,
+    medals:['🥇 Excelente!','🥈 Muito bem!','🥉 Não desistas!']
+  }
+};
+const CHX=['#ff6b9d','#36b5f5','#4ecb71','#ff9f43','#a29bfe','#fd79a8','#00cec9','#ffd700','#ff6b35','#6c5ce7','#00b894','#e17055','#b8860b'];
+
+let lvl='easy',grid=[],placed=[],found=[],cells=[],
+    selecting=false,startCell=null,selLine=[],
+    hintsLeft=3,playerName='Herói das Crianças',startSel='easy';
+
+/* ── GRID BUILDER ── */
+function initG(s){return Array.from({length:s},()=>Array(s).fill(''));}
+function canP(g,w,r,c,dr,dc,s){
+  for(let i=0;i<w.length;i++){let nr=r+i*dr,nc=c+i*dc;if(nr<0||nr>=s||nc<0||nc>=s)return false;if(g[nr][nc]&&g[nr][nc]!==w[i])return false;}return true;
+}
+function placeW(g,w,dirs,s){
+  for(let t=0;t<500;t++){
+    const[dr,dc]=dirs[Math.floor(Math.random()*dirs.length)],
+      r=Math.floor(Math.random()*s),c=Math.floor(Math.random()*s);
+    if(canP(g,w,r,c,dr,dc,s)){
+      const co=[];
+      for(let i=0;i<w.length;i++){g[r+i*dr][c+i*dc]=w[i];co.push([r+i*dr,c+i*dc]);}
+      return co;
+    }
+  }return null;
+}
+function fillR(g,s){const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ';for(let r=0;r<s;r++)for(let c=0;c<s;c++)if(!g[r][c])g[r][c]=L[Math.floor(Math.random()*26)];}
+
+/* ── CELL SIZE: fill available width ── */
+function calcCellSize(s){
+  const gw=document.getElementById('grid-wrap');
+  let avail=gw.getBoundingClientRect().width||gw.offsetWidth;
+  // Cap grid at 760px so it doesn't get huge on very wide screens
+  avail=Math.min(avail, 760);
+  if(avail<40){
+    const sw=window.innerWidth;
+    const isMobile=sw<=700;
+    if(isMobile){
+      avail=sw-20;
+    } else {
+      // Desktop: subtract sidebar (~240px) + gap (~16px) + screen padding (~16px)
+      avail=Math.min(sw-272, 760);
+    }
+  }
+  const gap=Math.max(1, Math.floor((s-1)*(window.innerWidth<=700?1.5:3)));
+  const cs=Math.floor((avail-gap)/s);
+  return Math.max(cs, 14); // never smaller than 14px
+}
+
+function buildGame(){
+  const L=LEVELS[lvl],s=L.size;
+  grid=initG(s);placed=[];found=[];hintsLeft=L.hints;
+  document.getElementById('hints-left').textContent=hintsLeft;
+  L.words.forEach(w=>{const co=placeW(grid,w,L.dirs,s);if(co)placed.push({word:w,coords:co});});
+  fillR(grid,s);
+  // Wait two frames so browser has laid out grid-wrap before measuring
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    renderGrid(s);
+    renderWL();
+    document.getElementById('msg').textContent='';
+    document.getElementById('score').textContent='0 / '+placed.length+' encontradas';
+    document.getElementById('pbar').style.width='0%';
+  }));
+}
+
+function renderGrid(s){
+  const el=document.getElementById('grid');
+  const gw=document.getElementById('grid-wrap');
+  const gap=window.innerWidth<=700 ? 2 : 3;
+  // Measure after layout settle
+  const avail=gw.getBoundingClientRect().width||gw.offsetWidth||Math.min(window.innerWidth*.95,860);
+  const totalGap=gap*(s-1);
+  const cs=Math.max(14, Math.floor((avail-totalGap)/s));
+  el.style.gridTemplateColumns=`repeat(${s},${cs}px)`;
+  el.style.gap=gap+'px';
+  el.style.width=(cs*s+totalGap)+'px';
+  el.innerHTML='';cells=[];
+  const fs=cs<=18?'0.52rem':cs<=24?'0.65rem':cs<=30?'0.78rem':cs<=38?'0.9rem':'1.05rem';
+  for(let r=0;r<s;r++)for(let c=0;c<s;c++){
+    const d=document.createElement('div');
+    d.className='cell';d.textContent=grid[r][c];
+    d.dataset.r=r;d.dataset.c=c;
+    d.style.width=cs+'px';d.style.height=cs+'px';
+    d.style.fontSize=fs;
+    el.appendChild(d);cells.push(d);
+  }
+  addEv();
+}
+
+function renderWL(){
+  const el=document.getElementById('word-list');el.innerHTML='';
+  placed.forEach((p,i)=>{
+    const d=document.createElement('div');d.className='word-item';d.id='wi-'+i;
+    const dot=document.createElement('div');dot.className='dot';dot.style.background=CHX[i];
+    d.appendChild(dot);d.appendChild(document.createTextNode(p.word));el.appendChild(d);
+  });
+}
+
+function getLine(r1,c1,r2,c2){
+  const dr=r2-r1,dc=c2-c1,len=Math.max(Math.abs(dr),Math.abs(dc));
+  if(!len)return[[r1,c1]];
+  if(dr&&dc&&Math.abs(dr)!==Math.abs(dc))return[];
+  const sr=dr?dr/Math.abs(dr):0,sc=dc?dc/Math.abs(dc):0,line=[];
+  for(let i=0;i<=len;i++)line.push([r1+i*sr,c1+i*sc]);return line;
+}
+function checkW(line){
+  const str=line.map(([r,c])=>grid[r][c]).join(''),strR=[...str].reverse().join('');
+  for(const p of placed){if(found.includes(p.word))continue;if(str===p.word||strR===p.word)return p;}return null;
+}
+function hl(coords,cls){coords.forEach(([r,c])=>{getCell(r,c).className='cell '+cls;});}
+function getCell(r,c){return cells[r*LEVELS[lvl].size+c];}
+function clrSel(){cells.forEach(d=>{if(d.classList.contains('selecting'))d.classList.remove('selecting');});}
+
+function onFound(p){
+  const i=placed.indexOf(p);found.push(p.word);hl(p.coords,'found-'+i);
+  document.getElementById('wi-'+i).classList.add('done');
+  const pct=Math.round(found.length/placed.length*100);
+  document.getElementById('pbar').style.width=pct+'%';
+  document.getElementById('score').textContent=found.length+' / '+placed.length+' encontradas';
+  // encouragement from robot
+  const msgs=['Boa! '+p.word+'! 🎉','Encontraste '+p.word+'! 🌟',''+p.word+'! Incrível! 💪','Excelente! '+p.word+' ✅'];
+  showBub(msgs[Math.floor(Math.random()*msgs.length)]);
+  if(found.length===placed.length)setTimeout(showWin,700);
+  else{document.getElementById('msg').textContent='✅ '+p.word+'!';setTimeout(()=>{if(found.length<placed.length)document.getElementById('msg').textContent='';},1500);}
+}
+
+function showWin(){
+  const L=LEVELS[lvl],pct=found.length/placed.length,
+    m=pct===1?L.medals[0]:pct>=.7?L.medals[1]:L.medals[2];
+  const names={easy:'Fácil',medium:'Médio',hard:'Difícil'};
+  document.getElementById('winName').textContent=playerName;
+  document.getElementById('winFound').textContent=found.length+' / '+placed.length;
+  document.getElementById('winLevel').textContent=names[lvl];
+  document.getElementById('winMedal').textContent=m;
+  const winBubbles=['Que jogador incrível! 🏆🎉','Parabéns '+playerName+'! 🌟','Encontraste tudo! Fantástico! ✨'];
+  showBub(winBubbles[Math.floor(Math.random()*winBubbles.length)]);
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('winOverlay').classList.add('active');
+  spawnConfetti();
+}
+
+/* ── EVENTS ── */
+function addEv(){
+  const gel=document.getElementById('grid');
+  const fresh=gel.cloneNode(false);while(gel.firstChild)fresh.appendChild(gel.firstChild);gel.parentNode.replaceChild(fresh,gel);
+  const g2=document.getElementById('grid');
+  function getC(t){const c=t&&t.closest&&t.closest('.cell');return c?{r:+c.dataset.r,c:+c.dataset.c}:null;}
+  function getTC(e){const t=e.changedTouches[0];const el=document.elementFromPoint(t.clientX,t.clientY);return el?getC(el):null;}
+  function stS(p){selecting=true;startCell=p;selLine=[[p.r,p.c]];clrSel();getCell(p.r,p.c).classList.add('selecting');}
+  function mvS(p){if(!selecting)return;clrSel();selLine=getLine(startCell.r,startCell.c,p.r,p.c);selLine.forEach(([r,c])=>getCell(r,c).classList.add('selecting'));}
+  function enS(){if(!selecting)return;selecting=false;if(selLine.length){const w=checkW(selLine);if(w)onFound(w);}clrSel();selLine=[];}
+  g2.addEventListener('mousedown',e=>{const p=getC(e.target);if(p)stS(p);});
+  g2.addEventListener('mousemove',e=>{if(selecting){const p=getC(e.target);if(p)mvS(p);}});
+  window.addEventListener('mouseup',enS);
+  g2.addEventListener('touchstart',e=>{const p=getTC(e);if(p){stS(p);e.preventDefault();}},{passive:false});
+  g2.addEventListener('touchmove',e=>{if(selecting){e.preventDefault();const p=getTC(e);if(p)mvS(p);}},{passive:false});
+  g2.addEventListener('touchend',e=>{enS();},{passive:false});
+}
+
+/* restore found colours + done states after grid re-render */
+function reapplyFound(){
+  placed.forEach((p,i)=>{
+    if(found.includes(p.word)){
+      hl(p.coords,'found-'+i);
+      const wi=document.getElementById('wi-'+i);
+      if(wi)wi.classList.add('done');
+    }
+  });
+}
+
+/* redraw on resize */
+let resizeT=null;
+window.addEventListener('resize',()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{
+  if(grid.length&&document.getElementById('gameScreen').classList.contains('active')){
+    renderGrid(LEVELS[lvl].size);
+    reapplyFound();
+  }
+},200);});
+
+/* ── LEVEL BUTTONS ── */
+document.querySelectorAll('#startScreen .lvl-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#startScreen .lvl-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');startSel=b.dataset.level;
+  document.getElementById('startLvlDesc').textContent=LEVELS[startSel].label;
+}));
+document.querySelectorAll('#gameScreen .lvl-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#gameScreen .lvl-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');lvl=b.dataset.level;
+  document.getElementById('gameLvlDesc').textContent=LEVELS[lvl].label;
+  buildGame();
+}));
+
+/* ── START ── */
+document.getElementById('btnStart').addEventListener('click',()=>{
+  playerName=document.getElementById('playerName').value.trim()||'Herói das Crianças';
+  lvl=startSel;
+  document.getElementById('startScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  document.getElementById('robot-player-name').textContent='👤 '+playerName;
+  document.querySelector('.robot-wrap').classList.add('visible');
+  document.querySelectorAll('#gameScreen .lvl-btn').forEach(b=>b.classList.toggle('active',b.dataset.level===lvl));
+  document.getElementById('gameLvlDesc').textContent=LEVELS[lvl].label;
+  // wait for layout then build
+  requestAnimationFrame(()=>requestAnimationFrame(buildGame));
+});
+
+/* ── HINT ── */
+document.getElementById('btn-hint').addEventListener('click',()=>{
+  if(!hintsLeft)return;
+  const rem=placed.filter(p=>!found.includes(p.word));if(!rem.length)return;
+  const p=rem[Math.floor(Math.random()*rem.length)],i=placed.indexOf(p);
+  p.coords.forEach(([r,c])=>{
+    const cl=getCell(r,c);
+    cl.style.background=CHX[i];cl.style.color='#fff';
+    setTimeout(()=>{if(!found.includes(p.word)){cl.style.background='';cl.style.color='';}},2200);
+  });
+  hintsLeft--;document.getElementById('hints-left').textContent=hintsLeft;
+  document.getElementById('msg').textContent='💡 Procura: '+p.word;
+  showBub('Procura a palavra '+p.word+'! 🔍');
+  setTimeout(()=>{if(found.length<placed.length)document.getElementById('msg').textContent='';},2400);
+});
+
+/* ── NAV ── */
+document.getElementById('btn-restart').addEventListener('click',buildGame);
+document.getElementById('btn-menu').addEventListener('click',goMenu);
+document.getElementById('btnWinRestart').addEventListener('click',()=>{
+  stopConf();
+  document.getElementById('winOverlay').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  buildGame();
+});
+document.getElementById('btnWinMenu').addEventListener('click',()=>{stopConf();goMenu();});
+
+function goMenu(){
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('winOverlay').classList.remove('active');
+  document.getElementById('startScreen').classList.add('active');
+  document.querySelector('.robot-wrap').classList.remove('visible');
+  stopConf();
+}
+
+/* ── CONFETTI ── */
+let cInt=null;
+const CE=['🎈','🌟','🎉','🧸','🎊','⭐','🎁','🪅'];
+function spawnConfetti(){
+  const el=document.getElementById('confetti');el.classList.remove('hidden');el.innerHTML='';
+  cInt=setInterval(()=>{
+    for(let i=0;i<5;i++){
+      const s=document.createElement('span');s.textContent=CE[Math.floor(Math.random()*CE.length)];
+      s.style.left=Math.random()*100+'vw';
+      s.style.animationDuration=(2+Math.random()*2.5)+'s';
+      s.style.animationDelay=Math.random()+'s';
+      s.style.fontSize=(14+Math.random()*14)+'px';
+      el.appendChild(s);setTimeout(()=>s.remove(),4500);
+    }
+  },280);
+}
+function stopConf(){clearInterval(cInt);const el=document.getElementById('confetti');el.classList.add('hidden');el.innerHTML='';}
+
+/* ── ROBOT BUBBLE ── */
+const MSGS=[
+  'Encontra todas as palavras! 🔍',
+  'Vamos lá, és incrível! 🌟',
+  'Não desistas, consegues! 💪',
+  'Que tal usar uma dica? 💡',
+  'Arrasta pelas letras! ✋',
+  'Brincar e aprender! 🎈',
+  'Dia da Criança, dia especial! 🎉',
+  'Já estás quase! Força! 🚀',
+  'Encontra a próxima! 🎯',
+  'Que jogador fantástico! 🏆',
+];
+let bubT=null;
+function showBub(msg){
+  const b=document.getElementById('bubble');
+  b.textContent=msg;b.classList.add('show');
+  clearTimeout(bubT);bubT=setTimeout(()=>b.classList.remove('show'),3500);
+}
+const vbRobot=document.getElementById('vb-robot');
+vbRobot.addEventListener('click',()=>{
+  vbRobot.classList.remove('bounce');void vbRobot.offsetWidth;vbRobot.classList.add('bounce');
+  showBub(MSGS[Math.floor(Math.random()*MSGS.length)]);
+});
+vbRobot.addEventListener('keydown',e=>{
+  if(e.key==='Enter'||e.key===' '){
+    vbRobot.classList.remove('bounce');void vbRobot.offsetWidth;vbRobot.classList.add('bounce');
+    showBub(MSGS[Math.floor(Math.random()*MSGS.length)]);
+  }
+});
+// periodic encouragement during game
+setInterval(()=>{
+  if(document.getElementById('gameScreen').classList.contains('active')&&found.length<placed.length&&placed.length>0){
+    const encMsgs=['Força! Já encontraste '+found.length+'! 💪','Continua! Estás a arrasar! 🌟','Consegues! Não desistas! 🎯'];
+    showBub(encMsgs[Math.floor(Math.random()*encMsgs.length)]);
+  }
+},18000);
+
+setTimeout(()=>showBub('Olá! Sou o VanBerto! Encontra todas as palavras! 🎈'),900);
+</script>
+</body>
+</html>
