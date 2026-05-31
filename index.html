@@ -22,7 +22,7 @@ body{
 }
 
 @keyframes vbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-#prof-tag{position:fixed;bottom:.6rem;right:.75rem;z-index:600;font-family:'Nunito',sans-serif;font-size:clamp(.65rem,1.8vw,.78rem);color:#ffb890;font-weight:800;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.8);pointer-events:none;}
+#prof-tag{position:fixed;bottom:.6rem;left:50%;transform:translateX(-50%);z-index:600;font-family:'Nunito',sans-serif;font-size:clamp(.65rem,1.8vw,.78rem);color:#ffb890;font-weight:800;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.8);pointer-events:none;}
 
 /* ═══ SCREENS ═══ */
 .screen{
@@ -327,6 +327,7 @@ body{
     flex-direction:row;flex-wrap:wrap;
     flex:1;min-width:0;
   }
+  #word-list{flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;}
   .word-item{font-size:clamp(.58rem,2.5vw,.76rem);}
 }
 
@@ -399,6 +400,60 @@ body{
 @keyframes robotPop{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-18px) rotate(-6deg)}70%{transform:translateY(-8px) rotate(5deg)}}
 .vb-arm{transform-origin:65px 37px;animation:waveArm 1.5s ease-in-out infinite;}
 .vb-eyelid{transform-origin:40px 23px;animation:eyeBlink 5s ease-in-out infinite;}
+
+/* ═══ ROBOT FLUTUANTE FIXO ═══ */
+#fixed-robot-wrap{
+  position:fixed;
+  bottom:clamp(.6rem,2vh,1.2rem);
+  right:clamp(.6rem,2vw,1.2rem);
+  z-index:650;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  pointer-events:auto;
+}
+#fixed-robot-wrap.visible{display:flex;}
+#fixed-vb-robot{
+  width:clamp(52px,7vw,72px);
+  cursor:pointer;
+  animation:vbFloat 3s ease-in-out infinite;
+  filter:drop-shadow(0 0 12px #7dd3fc);
+}
+#fixed-vb-robot:hover{filter:drop-shadow(0 0 24px #38bdf8);}
+#fixed-vb-robot.bounce{animation:robotPop .65s cubic-bezier(.34,1.56,.64,1),vbFloat 3s ease-in-out .65s infinite;}
+#fixed-bubble{
+  --bc:#dcebff;
+  background:linear-gradient(135deg,var(--bc),#fff);
+  border:3px solid #0f172a;outline:2px solid #1e293b;outline-offset:-4px;
+  border-radius:16px;padding:6px 10px 5px;
+  box-shadow:3px 3px 0 #0f172a;
+  font-family:"Comic Sans MS","Trebuchet MS",sans-serif;
+  font-size:clamp(.6rem,1.5vw,.78rem);font-weight:bold;color:#0f172a;
+  max-width:160px;min-width:80px;text-align:center;
+  pointer-events:none;position:relative;
+  opacity:0;transform:translateY(-6px) scale(.88);
+  transition:opacity .38s,transform .38s cubic-bezier(.34,1.56,.64,1);
+  margin-bottom:4px;
+}
+#fixed-bubble::after{
+  content:"";position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);
+  border-left:10px solid transparent;border-right:10px solid transparent;
+  border-top:14px solid #0f172a;
+}
+#fixed-bubble::before{
+  content:"";position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
+  border-left:8px solid transparent;border-right:8px solid transparent;
+  border-top:11px solid var(--bc);z-index:1;
+}
+#fixed-bubble.show{opacity:1;transform:translateY(0) scale(1);}
+#fixed-robot-name{
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(.6rem,1.3vw,.72rem);
+  color:#ffd700;
+  text-shadow:0 1px 6px rgba(0,0,0,.8),0 0 10px rgba(255,107,53,.4);
+  text-align:center;line-height:1.2;
+}
 
 /* ═══ WIN OVERLAY ═══ */
 #winOverlay{
@@ -546,30 +601,9 @@ body{
     <div class="sidebar">
       <div class="words-zone">
         <div class="words-title">📋 Palavras:</div>
-        <div id="word-list" style="display:flex;flex-direction:row;flex-wrap:wrap;gap:4px;align-items:center;"></div>
+        <div id="word-list" style="display:flex;flex-direction:column;gap:4px;align-items:stretch;width:100%;"></div>
       </div>
-      <div class="robot-wrap" id="robot-wrap-inline">
-        <div class="bubble" id="bubble" role="status" aria-live="polite">Olá! 😊</div>
-        <svg id="vb-robot" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" role="button" tabindex="0" aria-label="VanBerto — clica para falar">
-          <defs>
-            <linearGradient id="rbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e5f2ff"/><stop offset="100%" stop-color="#bfdbfe"/></linearGradient>
-            <linearGradient id="rvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
-          </defs>
-          <circle cx="40" cy="40" r="34" fill="rgba(147,197,253,0.35)"/>
-          <rect x="18" y="30" width="44" height="32" rx="14" fill="url(#rbg)"/>
-          <circle cx="40" cy="46" r="7" fill="#9ca3af"/>
-          <rect x="22" y="10" width="36" height="26" rx="13" fill="url(#rbg)"/>
-          <rect x="26" y="15" width="28" height="16" rx="8" fill="url(#rvg)"/>
-          <rect class="vb-eyelid" x="26" y="15" width="28" height="16" rx="8" fill="#e5f2ff" opacity="0.9"/>
-          <circle cx="33" cy="23" r="2.5" fill="#0f172a"/><circle cx="47" cy="23" r="2.5" fill="#0f172a"/>
-          <circle cx="34.2" cy="21.5" r="1" fill="white" opacity="0.8"/><circle cx="48.2" cy="21.5" r="1" fill="white" opacity="0.8"/>
-          <line x1="40" y1="10" x2="40" y2="4" stroke="#38bdf8" stroke-width="2"/><circle cx="40" cy="3" r="2.5" fill="#38bdf8"/>
-          <rect x="12" y="34" width="6" height="20" rx="3" fill="#e5e7eb"/>
-          <rect class="vb-arm" x="62" y="34" width="6" height="20" rx="3" fill="#e5e7eb"/>
-          <rect x="22" y="58" width="12" height="8" rx="3" fill="#1f2937"/><rect x="46" y="58" width="12" height="8" rx="3" fill="#1f2937"/>
-        </svg>
-        <div class="robot-name" id="robot-player-name">👤 Herói</div>
-      </div>
+
     </div>
   </div>
 </div>
@@ -590,6 +624,30 @@ body{
       <button id="btnWinMenu" class="btn">🏠 Menu</button>
     </div>
   </div>
+</div>
+
+<!-- ═══ ROBOT FLUTUANTE FIXO ═══ -->
+<div id="fixed-robot-wrap">
+  <div id="fixed-bubble" role="status" aria-live="polite">Olá! 😊</div>
+  <svg id="fixed-vb-robot" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" role="button" tabindex="0" aria-label="VanBerto — clica para falar">
+    <defs>
+      <linearGradient id="frbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e5f2ff"/><stop offset="100%" stop-color="#bfdbfe"/></linearGradient>
+      <linearGradient id="frvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
+    </defs>
+    <circle cx="40" cy="40" r="34" fill="rgba(147,197,253,0.35)"/>
+    <rect x="18" y="30" width="44" height="32" rx="14" fill="url(#frbg)"/>
+    <circle cx="40" cy="46" r="7" fill="#9ca3af"/>
+    <rect x="22" y="10" width="36" height="26" rx="13" fill="url(#frbg)"/>
+    <rect x="26" y="15" width="28" height="16" rx="8" fill="url(#frvg)"/>
+    <rect class="vb-eyelid" x="26" y="15" width="28" height="16" rx="8" fill="#e5f2ff" opacity="0.9"/>
+    <circle cx="33" cy="23" r="2.5" fill="#0f172a"/><circle cx="47" cy="23" r="2.5" fill="#0f172a"/>
+    <circle cx="34.2" cy="21.5" r="1" fill="white" opacity="0.8"/><circle cx="48.2" cy="21.5" r="1" fill="white" opacity="0.8"/>
+    <line x1="40" y1="10" x2="40" y2="4" stroke="#38bdf8" stroke-width="2"/><circle cx="40" cy="3" r="2.5" fill="#38bdf8"/>
+    <rect x="12" y="34" width="6" height="20" rx="3" fill="#e5e7eb"/>
+    <rect class="vb-arm" x="62" y="34" width="6" height="20" rx="3" fill="#e5e7eb"/>
+    <rect x="22" y="58" width="12" height="8" rx="3" fill="#1f2937"/><rect x="46" y="58" width="12" height="8" rx="3" fill="#1f2937"/>
+  </svg>
+  <div id="fixed-robot-name">👤 Herói</div>
 </div>
 
 <!-- ═══ CONFETTI ═══ -->
@@ -821,8 +879,10 @@ document.getElementById('btnStart').addEventListener('click',()=>{
   lvl=startSel;
   document.getElementById('startScreen').classList.remove('active');
   document.getElementById('gameScreen').classList.add('active');
-  document.getElementById('robot-player-name').textContent='👤 '+playerName;
-  document.querySelector('.robot-wrap').classList.add('visible');
+  document.getElementById('robot-player-name') && (document.getElementById('robot-player-name').textContent='👤 '+playerName);
+  document.getElementById('fixed-robot-name').textContent='👤 '+playerName;
+  document.querySelector('.robot-wrap') && document.querySelector('.robot-wrap').classList.add('visible');
+  document.getElementById('fixed-robot-wrap').classList.add('visible');
   document.querySelectorAll('#gameScreen .lvl-btn').forEach(b=>b.classList.toggle('active',b.dataset.level===lvl));
   document.getElementById('gameLvlDesc').textContent=LEVELS[lvl].label;
   // wait for layout then build
@@ -860,7 +920,8 @@ function goMenu(){
   document.getElementById('gameScreen').classList.remove('active');
   document.getElementById('winOverlay').classList.remove('active');
   document.getElementById('startScreen').classList.add('active');
-  document.querySelector('.robot-wrap').classList.remove('visible');
+  document.querySelector('.robot-wrap') && document.querySelector('.robot-wrap').classList.remove('visible');
+  document.getElementById('fixed-robot-wrap').classList.remove('visible');
   stopConf();
 }
 
@@ -897,11 +958,11 @@ const MSGS=[
 ];
 let bubT=null;
 function showBub(msg){
-  const b=document.getElementById('bubble');
+  const b=document.getElementById('fixed-bubble');
   b.textContent=msg;b.classList.add('show');
   clearTimeout(bubT);bubT=setTimeout(()=>b.classList.remove('show'),3500);
 }
-const vbRobot=document.getElementById('vb-robot');
+const vbRobot=document.getElementById('fixed-vb-robot');
 vbRobot.addEventListener('click',()=>{
   vbRobot.classList.remove('bounce');void vbRobot.offsetWidth;vbRobot.classList.add('bounce');
   showBub(MSGS[Math.floor(Math.random()*MSGS.length)]);
