@@ -528,6 +528,55 @@ body{
   .robot-wrap{flex-direction:column;border-top:1px solid rgba(255,107,53,.2);}
   .bottom-bar{margin-top:.2rem;}
 }
+
+/* ═══ FULLSCREEN BUTTON ═══ */
+#btn-fullscreen{
+  background:rgba(255,107,53,.08);
+  border:2px solid rgba(255,215,0,.35);
+  border-radius:8px;
+  color:#ffd700;
+  cursor:pointer;
+  width:30px;height:30px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+  padding:0;
+  flex-shrink:0;
+  transition:background .15s,border-color .15s,transform .1s;
+  line-height:1;
+}
+#btn-fullscreen:hover{background:rgba(255,107,53,.2);border-color:#ffd700;transform:scale(1.08);}
+#btn-fullscreen:active{transform:scale(.95);}
+
+/* ═══ FULLSCREEN MODE TWEAKS ═══ */
+:fullscreen #gameScreen,
+:-webkit-full-screen #gameScreen,
+:-moz-full-screen #gameScreen{
+  height:100vh;overflow-y:auto;
+}
+:fullscreen body,
+:-webkit-full-screen body,
+:-moz-full-screen body{
+  background:#1a0a2e;
+}
+
+/* ═══ BETTER PC RESPONSIVE ═══ */
+/* Medium screens: slightly reduce sidebar */
+@media(min-width:701px) and (max-width:900px){
+  .sidebar{min-width:130px;max-width:180px;}
+  .word-item{font-size:.72rem;padding:3px 8px;}
+  .game-layout{gap:8px;}
+}
+/* Large screens: more generous layout */
+@media(min-width:1200px){
+  #gameScreen{padding-left:1.5rem;padding-right:1.5rem;}
+  .sidebar{min-width:200px;max-width:260px;}
+  .word-item{font-size:.85rem;}
+}
+/* Very large screens */
+@media(min-width:1600px){
+  .sidebar{min-width:220px;max-width:280px;}
+  .word-item{font-size:.9rem;padding:5px 12px;}
+}
 </style>
 </head>
 <body lang="pt-PT">
@@ -590,6 +639,7 @@ body{
       <button class="btn btn-sm" id="btn-hint">💡 Dica (<span id="hints-left">3</span>)</button>
       <button class="btn btn-sm primary" id="btn-restart">↺ Novo Jogo</button>
       <button class="btn btn-sm" id="btn-menu">🏠 Menu</button>
+      <button id="btn-fullscreen" title="Ecrã inteiro">⛶</button>
     </div>
   </div>
   <p class="lvl-desc" id="gameLvlDesc" style="width:100%;max-width:1100px;margin:0 auto .15rem;"></p>
@@ -713,19 +763,20 @@ function fillR(g,s){const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ';for(let r=0;r<s;r++)for
 function calcCellSize(s){
   const gw=document.getElementById('grid-wrap');
   let avail=gw.getBoundingClientRect().width||gw.offsetWidth;
+  const isMobile=window.innerWidth<=700;
   // Cap grid at 760px so it doesn't get huge on very wide screens
-  avail=Math.min(avail, 760);
+  avail=Math.min(avail, isMobile ? 9999 : 760);
   if(avail<40){
     const sw=window.innerWidth;
-    const isMobile=sw<=700;
     if(isMobile){
       avail=sw-20;
     } else {
-      // Desktop: subtract sidebar (~240px) + gap (~16px) + screen padding (~16px)
-      avail=Math.min(sw-272, 760);
+      // Desktop: subtract sidebar + gap + padding, cap at 760
+      const sidebarW = sw <= 900 ? 190 : sw <= 1200 ? 220 : 270;
+      avail=Math.min(sw - sidebarW - 40, 760);
     }
   }
-  const gap=Math.max(1, Math.floor((s-1)*(window.innerWidth<=700?1.5:3)));
+  const gap=Math.max(1, Math.floor((s-1)*(isMobile?1.5:3)));
   const cs=Math.floor((avail-gap)/s);
   return Math.max(cs, 14); // never smaller than 14px
 }
@@ -749,9 +800,11 @@ function buildGame(){
 function renderGrid(s){
   const el=document.getElementById('grid');
   const gw=document.getElementById('grid-wrap');
-  const gap=window.innerWidth<=700 ? 2 : 3;
+  const isMobile=window.innerWidth<=700;
+  const gap=isMobile ? 2 : 3;
   // Measure after layout settle
-  const avail=gw.getBoundingClientRect().width||gw.offsetWidth||Math.min(window.innerWidth*.95,860);
+  let avail=gw.getBoundingClientRect().width||gw.offsetWidth||Math.min(window.innerWidth*.95,860);
+  avail=Math.min(avail, isMobile ? 9999 : 760);
   const totalGap=gap*(s-1);
   const cs=Math.max(14, Math.floor((avail-totalGap)/s));
   el.style.gridTemplateColumns=`repeat(${s},${cs}px)`;
@@ -982,6 +1035,30 @@ setInterval(()=>{
 },18000);
 
 setTimeout(()=>showBub('Olá! Sou o VanBerto! Encontra todas as palavras! 🎈'),900);
+
+/* ── FULLSCREEN ── */
+const btnFS=document.getElementById('btn-fullscreen');
+function updateFSIcon(){
+  const isFS=!!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement);
+  btnFS.textContent=isFS?'✕':'⛶';
+  btnFS.title=isFS?'Sair do ecrã inteiro':'Ecrã inteiro';
+}
+btnFS.addEventListener('click',()=>{
+  const isFS=!!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement);
+  if(!isFS){
+    const el=document.documentElement;
+    if(el.requestFullscreen)el.requestFullscreen();
+    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+    else if(el.mozRequestFullScreen)el.mozRequestFullScreen();
+  } else {
+    if(document.exitFullscreen)document.exitFullscreen();
+    else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
+    else if(document.mozCancelFullScreen)document.mozCancelFullScreen();
+  }
+});
+document.addEventListener('fullscreenchange',()=>{updateFSIcon();setTimeout(()=>{if(grid.length&&document.getElementById('gameScreen').classList.contains('active')){renderGrid(LEVELS[lvl].size);reapplyFound();}},150);});
+document.addEventListener('webkitfullscreenchange',()=>{updateFSIcon();setTimeout(()=>{if(grid.length&&document.getElementById('gameScreen').classList.contains('active')){renderGrid(LEVELS[lvl].size);reapplyFound();}},150);});
+document.addEventListener('mozfullscreenchange',()=>{updateFSIcon();setTimeout(()=>{if(grid.length&&document.getElementById('gameScreen').classList.contains('active')){renderGrid(LEVELS[lvl].size);reapplyFound();}},150);});
 </script>
 </body>
 </html>
